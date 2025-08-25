@@ -226,14 +226,22 @@ def render_divider():
         unsafe_allow_html=True
     )
     
-def calc_fdr_delta_colour(rank):
-    if rank < 7:
-        return "normal"
-    elif rank < 15:  
-        return "off"
+def calc_delta_colour(rank, type):
+    if type == "fdr":
+        if rank < 7:
+            return "normal"
+        elif rank < 15:  
+            return "off"
+        else:
+            return "inverse"
     else:
-        return "inverse"
-    
+        if rank < 10:
+            return "normal"
+        elif rank < 50:  
+            return "off"
+        else:
+            return "inverse"
+        
 def map_fdr_colour(fdr):
     if fdr == 2:
         return "fdr-two"

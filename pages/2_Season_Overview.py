@@ -146,8 +146,8 @@ with fixtures3:
         team_10gw_avg_fdr = fdr_database[fdr_database['Team']==team_FDR]['10 GW FDR Avg'].iloc[0]
         team_5gw_rank = int(fdr_database[fdr_database['Team']==team_FDR]['5 GW FDR Avg'].index[0])
         team_10gw_rank = int(fdr_database[fdr_database['Team']==team_FDR]['10 GW FDR Avg'].index[0])
-        delta_colour_5 = utils.calc_fdr_delta_colour(team_5gw_rank)
-        delta_colour_10 = utils.calc_fdr_delta_colour(team_10gw_rank)
+        delta_colour_5 = utils.calc_delta_colour(team_5gw_rank, type="fdr")
+        delta_colour_10 = utils.calc_delta_colour(team_10gw_rank, type="fdr")
         st.metric(f"Average FDR for the next 5 GWs", team_5gw_avg_fdr, delta=f"PL Rank: {team_5gw_rank}", delta_color=delta_colour_5, border=True)
         st.metric(f"Average FDR for the next 10 GWs", team_10gw_avg_fdr, delta=f"PL Rank: {team_10gw_rank}", delta_color=delta_colour_10, border=True)
 

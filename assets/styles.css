@@ -6,7 +6,7 @@
     margin-bottom: 5px;
 }
 
-.st-key-fdr-metric div[data-testid="stMetric"]{
+[class*="st-key-fdr-metric"] [data-testid="stMetric"]{
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -14,6 +14,27 @@
     border: 1px solid #FF2DD1;
     background: #2A2A3A;
     border-radius: 10px
+}
+
+.st-key-fdr-metric div[data-testid="stMetric"] label{
+    text-align: center !important;
+    width: 100%;
+    display: block;
+}
+
+.st-key-fdr-metric div[data-testid="stMetricValue"]{
+    text-align: center !important;
+}
+
+[class*="st-key-fdr-metric"] [data-testid="stMetricDelta"] svg{
+    display: none;
+}
+
+.st-key-fdr-metric [data-testid="stMetricDelta"]{
+    font-weight: bold !important;
+    text-align: center !important;
+    display: flex;
+    justify-content: center;
 }
 
 /* 1) Remove Streamlit’s default vertical stack spacing */
@@ -41,28 +62,6 @@
 .st-key-price-movement .ag-root-wrapper-body {
   margin: 0 !important;
   padding: 0 !important;
-}
-
-
-.st-key-fdr-metric div[data-testid="stMetric"] label{
-    text-align: center !important;
-    width: 100%;
-    display: block;
-}
-
-.st-key-fdr-metric div[data-testid="stMetricValue"]{
-    text-align: center !important;
-}
-
-.st-key-fdr-metric [data-testid="stMetricDelta"] svg{
-    display: none;
-}
-
-.st-key-fdr-metric [data-testid="stMetricDelta"]{
-    font-weight: bold !important;
-    text-align: center !important;
-    display: flex;
-    justify-content: center;
 }
 
 /* FDR 1 Styling */
