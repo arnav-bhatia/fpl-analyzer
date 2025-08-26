@@ -106,7 +106,7 @@ def build_aggrid_table(
     return AgGrid(
         df,
         gridOptions=grid_options,
-        height=min(max_height, (1 + len(df.index)) * 31),
+        height=min(max_height, (1 + len(df.index)) * 30),
         allow_unsafe_jscode=True,
         custom_css=custom_css
     )

@@ -18,6 +18,7 @@ def load_manager_details(ENTRY_URL: str = "https://fantasy.premierleague.com/api
         manager_details = {
             'First Name': manager_json['player_first_name'],
             'Last Name': manager_json['player_last_name'],
+            'Country': manager_json['player_region_name'],
             'Team Name': manager_json['name'],
             'Total Points': manager_json['summary_overall_points'],
             'Global Rank': manager_json['summary_overall_rank']
@@ -33,6 +34,7 @@ def load_manager_details(ENTRY_URL: str = "https://fantasy.premierleague.com/api
     
         manager_league_df = pd.DataFrame(manager_league_list)
         manager_league_df['Percentile'] = round((manager_league_df['Rank']/manager_league_df['Total Players'])*100, 0)
+        manager_league_df = manager_league_df.set_index('Name')
         return manager_league_df, manager_details
         
     except requests.exceptions.HTTPError as http_err:

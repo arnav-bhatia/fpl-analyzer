@@ -19,7 +19,6 @@ load_css(css_path)
 st.title('FPL Analyzer - Home Page')
 st.caption("My team - 5252797")
 
-# --- make manager_id persistent across pages ---
 if "manager_id" not in st.session_state:
     st.session_state.manager_id = ""
 
@@ -28,10 +27,9 @@ manager_id = st.text_input(
     placeholder="Enter your FPL manager ID",
     help="Go to the FPL website, and look at the url when you press on Points",
     label_visibility="collapsed",
-    key="manager_id"        # <— the widget is now bound to session_state
+    key="manager_id"
 )
 
-# --- cache the heavy fetch at module level and key by manager_id ---
 @st.cache_data(ttl=900, show_spinner=False)
 def load_all_data(manager_id: str):
     fetched_at = datetime.datetime.now(tz=pytz.timezone("Asia/Kolkata"))
@@ -81,23 +79,19 @@ def load_all_data(manager_id: str):
         "pd_col_defs": pd_col_defs,
     }
 
-# Sidebar refresh works as before
 with st.sidebar:
     if st.button("Refresh Data"):
-        load_all_data.clear()     # clears cache for all manager_ids
+        load_all_data.clear()
         if "fpl_data" in st.session_state:
             del st.session_state["fpl_data"]
         st.rerun()
 
-# --- fetch once per manager and persist the dict in session_state ---
 if manager_id:
     if "fpl_data" not in st.session_state or st.session_state["fpl_data"].get("manager_details_dict", {}).get("id") != manager_id:
         st.session_state["fpl_data"] = load_all_data(manager_id)
 
-# If we have data (from this visit or a previous page hop), render it
 if "fpl_data" in st.session_state:
     data = st.session_state["fpl_data"]
-
     fresh = data["fetched_at"]
     manager_league_df = data["manager_league_df"]
     manager_details_dict = data["manager_details_dict"]
@@ -138,17 +132,22 @@ if "fpl_data" in st.session_state:
                       border=True)
     with managersum2:
         with st.container(key="fdr-metric_two"):
-            delta_overall = int(manager_league_df.loc[2, "Percentile"])
+            delta_overall = int(manager_league_df.loc['Overall', "Percentile"])
             delta_colour_overall = utils.calc_delta_colour(delta_overall, type="percentile")
             st.metric("Overall Rank", manager_details_dict['Global Rank'],
                       delta=f"Percentile: {delta_overall}",
                       delta_color=delta_colour_overall, border=True)
     with managersum3:
         with st.container(key="fdr-metric_three"):
-            delta_country = int(manager_league_df.loc[0, "Percentile"])
+            player_country = manager_details_dict['Country']
+            delta_country = int(manager_league_df.loc[player_country, "Percentile"])
             delta_colour_country = utils.calc_delta_colour(delta_country, type="percentile")
-            st.metric(f"{manager_league_df.loc[0, 'Name']} Rank", manager_league_df.loc[0, "Rank"],
+            st.metric(f"{player_country} Rank", manager_league_df.loc[player_country, "Rank"],
                       delta=f"Percentile: {delta_country}",
                       delta_color=delta_colour_country, border=True)
+    
+    # utils.render_title_with_bg("League Summary")
+    # league_df = manager_league_df.reset_index()
+    # utils.build_aggrid_table(league_df)
 else:
     st.info("Enter your FPL manager ID to load your dashboard.")
