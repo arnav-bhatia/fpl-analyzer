@@ -6,6 +6,7 @@ import requests
 import pytz
 import utils
 import requests
+import streamlit as st
 
 HEADERS = {"User-Agent": "FPL-Analyzer/1.0 (+https://github.com/arnav/fpl-analyzer)"}
 
@@ -28,12 +29,14 @@ def load_manager_details(ENTRY_URL: str = "https://fantasy.premierleague.com/api
             league_details = {
                 'Name': league['name'],
                 'Rank': league['entry_rank'],
-                'Total Players': league['rank_count']
+                'Previous Rank': league['entry_last_rank'],
+                'Total Players': league['rank_count'],
             }
             manager_league_list.append(league_details)
     
         manager_league_df = pd.DataFrame(manager_league_list)
         manager_league_df['Percentile'] = round((manager_league_df['Rank']/manager_league_df['Total Players'])*100, 0)
+        manager_league_df['Delta'] = manager_league_df['Previous Rank'] - manager_league_df['Rank'] 
         manager_league_df = manager_league_df.set_index('Name')
         return manager_league_df, manager_details
         

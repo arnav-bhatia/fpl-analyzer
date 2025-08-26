@@ -124,30 +124,26 @@ if "fpl_data" in st.session_state:
     st.subheader(f"Welcome, {manager_details_dict['First Name']} {manager_details_dict['Last Name']}!")
     utils.render_title_with_bg(f"{manager_details_dict['Team Name']} Summary")
 
-    managersum1, managersum2, managersum3 = st.columns(3)
+    managersum1, managersum2 = st.columns([1.75,1.25])
     with managersum1:
-        with st.container(key="fdr-metric_one"):
+            league_df = manager_league_df.reset_index()
+            utils.build_aggrid_table(league_df)
+    with managersum2:
+        with st.container(key="fdr-metric"):
             st.metric("Total Points", manager_details_dict['Total Points'],
                       delta=f"Average Points per GW: {round(manager_details_dict['Total Points']/current_gw, 2)}",
                       border=True)
-    with managersum2:
-        with st.container(key="fdr-metric_two"):
             delta_overall = int(manager_league_df.loc['Overall', "Percentile"])
             delta_colour_overall = utils.calc_delta_colour(delta_overall, type="percentile")
             st.metric("Overall Rank", manager_details_dict['Global Rank'],
                       delta=f"Percentile: {delta_overall}",
                       delta_color=delta_colour_overall, border=True)
-    with managersum3:
-        with st.container(key="fdr-metric_three"):
             player_country = manager_details_dict['Country']
             delta_country = int(manager_league_df.loc[player_country, "Percentile"])
             delta_colour_country = utils.calc_delta_colour(delta_country, type="percentile")
             st.metric(f"{player_country} Rank", manager_league_df.loc[player_country, "Rank"],
                       delta=f"Percentile: {delta_country}",
                       delta_color=delta_colour_country, border=True)
-    
-    # utils.render_title_with_bg("League Summary")
-    # league_df = manager_league_df.reset_index()
-    # utils.build_aggrid_table(league_df)
+
 else:
     st.info("Enter your FPL manager ID to load your dashboard.")
