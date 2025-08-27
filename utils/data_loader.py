@@ -7,11 +7,27 @@ import pytz
 import utils
 import requests
 import streamlit as st
+from st_aggrid import JsCode
 
 HEADERS = {"User-Agent": "FPL-Analyzer/1.0 (+https://github.com/arnav/fpl-analyzer)"}
 
 def load_manager_details(ENTRY_URL: str = "https://fantasy.premierleague.com/api/entry", manager_id="5252797"):
     MANAGER_URL = urljoin(f"{ENTRY_URL}/", manager_id)
+    delta_formatter = JsCode("""
+    function(params) {
+        if (params.value < 0) {
+            return {
+                'color': 'red',
+                'fontWeight': 'bold',
+            };
+        } else {
+            return {
+                'color': 'green',
+                'fontWeight': 'bold',
+            };
+        }
+    };
+    """)
     try:
         response = requests.get(MANAGER_URL, timeout=10, headers=HEADERS)
         response.raise_for_status()
@@ -37,8 +53,18 @@ def load_manager_details(ENTRY_URL: str = "https://fantasy.premierleague.com/api
         manager_league_df = pd.DataFrame(manager_league_list)
         manager_league_df['Percentile'] = round((manager_league_df['Rank']/manager_league_df['Total Players'])*100, 0)
         manager_league_df['Delta'] = manager_league_df['Previous Rank'] - manager_league_df['Rank'] 
-        manager_league_df = manager_league_df.set_index('Name')
-        return manager_league_df, manager_details
+        
+        league_col_defs = [
+        {"headerName": "League Name", "field": "Name", "flex": 2, "minWidth": 100, "pinned": "left", "cellStyle": {"font-weight": "bold", "text-transform": "uppercase"}},
+        {"headerName": "Total Players", "field": "Total Players", "flex": 1, "minWidth": 90},
+        {"headerName": "Current Rank", "field": "Rank", "flex": 1, "minWidth": 70},
+        {"headerName": "Previous Rank", "field": "Previous Rank", "flex": 1, "minWidth": 70},
+        {"headerName": "Delta", "field": "Delta", "flex": 1, "minWidth": 70, "cellStyle": delta_formatter},
+        {"headerName": "Percentile", "field": "Percentile", "flex": 1, "minWidth": 70},
+
+        ]
+        
+        return manager_league_df, league_col_defs, manager_details
         
     except requests.exceptions.HTTPError as http_err:
         raise RuntimeError(f"HTTP error occurred while fetching player data: {http_err}")

@@ -33,7 +33,7 @@ manager_id = st.text_input(
 @st.cache_data(ttl=900, show_spinner=False)
 def load_all_data(manager_id: str):
     fetched_at = datetime.datetime.now(tz=pytz.timezone("Asia/Kolkata"))
-    manager_league_df, manager_details_dict = utils.load_manager_details(manager_id=manager_id)
+    manager_league_df, league_coldefs, manager_details_dict = utils.load_manager_details(manager_id=manager_id)
     manager_gw_history = utils.load_manager_gw_history(manager_id=manager_id)
     player_json = utils.load_player_data()
     fixtures_json = utils.load_fixtures_data()
@@ -54,6 +54,7 @@ def load_all_data(manager_id: str):
     return {
         "fetched_at": fetched_at,
         "manager_league_df": manager_league_df,
+        "league_coldefs": league_coldefs,
         "manager_details_dict": manager_details_dict,
         "manager_gw_history": manager_gw_history,
         "player_json": player_json,
@@ -94,6 +95,7 @@ if "fpl_data" in st.session_state:
     data = st.session_state["fpl_data"]
     fresh = data["fetched_at"]
     manager_league_df = data["manager_league_df"]
+    league_coldefs = data["league_coldefs"]
     manager_details_dict = data["manager_details_dict"]
     manager_gw_history = data["manager_gw_history"]
     player_json = data["player_json"]
@@ -126,22 +128,22 @@ if "fpl_data" in st.session_state:
 
     managersum1, managersum2 = st.columns([1.75,1.25])
     with managersum1:
-            league_df = manager_league_df.reset_index()
-            utils.build_aggrid_table(league_df)
+            utils.build_aggrid_table(manager_league_df, col_defs=league_coldefs)
     with managersum2:
         with st.container(key="fdr-metric"):
+            league_df = manager_league_df.set_index('Name', drop=True)
             st.metric("Total Points", manager_details_dict['Total Points'],
                       delta=f"Average Points per GW: {round(manager_details_dict['Total Points']/current_gw, 2)}",
                       border=True)
-            delta_overall = int(manager_league_df.loc['Overall', "Percentile"])
+            delta_overall = int(league_df.loc['Overall', "Percentile"])
             delta_colour_overall = utils.calc_delta_colour(delta_overall, type="percentile")
             st.metric("Overall Rank", manager_details_dict['Global Rank'],
                       delta=f"Percentile: {delta_overall}",
                       delta_color=delta_colour_overall, border=True)
             player_country = manager_details_dict['Country']
-            delta_country = int(manager_league_df.loc[player_country, "Percentile"])
+            delta_country = int(league_df.loc[player_country, "Percentile"])
             delta_colour_country = utils.calc_delta_colour(delta_country, type="percentile")
-            st.metric(f"{player_country} Rank", manager_league_df.loc[player_country, "Rank"],
+            st.metric(f"{player_country} Rank", league_df.loc[player_country, "Rank"],
                       delta=f"Percentile: {delta_country}",
                       delta_color=delta_colour_country, border=True)
 
