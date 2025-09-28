@@ -39,7 +39,6 @@ def authenticate():
     initial_state = uuid.uuid4().hex
     session = requests.Session(impersonate="chrome124")
 
-    # Step 1: Request authorization page
     params = {
         "client_id": CLIENT_ID,
         "redirect_uri": "https://fantasy.premierleague.com/",
@@ -55,12 +54,10 @@ def authenticate():
     access_token = re.search(r'"accessToken":"([^"]+)"', login_html).group(1)
     new_state = re.search(r'<input[^>]+name="state"[^>]+value="([^"]+)"', login_html).group(1)
 
-    # Step 2: Use accessToken to get interaction id/token
     headers = {"Authorization": f"Bearer {access_token}", "Content-Type": "application/json"}
     response = session.post(URLS["start"], headers=headers).json()
     interaction_id, interaction_token = response["interactionId"], response["interactionToken"]
 
-    # Step 3: Perform login with EMAIL + PASSWORD
     email, password = os.getenv("EMAIL"), os.getenv("PASSWORD")
 
     response = session.post(
@@ -101,7 +98,6 @@ def authenticate():
         },
     )
 
-    # Step 4: Resume login
     response = session.post(
         URLS["resume"],
         data={"dvResponse": response.json()["dvResponse"], "state": new_state},
@@ -110,7 +106,6 @@ def authenticate():
     location = response.headers["Location"]
     auth_code = re.search(r"[?&]code=([^&]+)", location).group(1)
 
-    # Step 5: Exchange auth code for tokens
     response = session.post(
         URLS["token"],
         data={
