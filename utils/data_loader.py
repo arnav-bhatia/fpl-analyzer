@@ -646,10 +646,10 @@ def build_pl_table(pl_teams_list, fixtures_database, get_team_fixtures):
             score = match["Score"]
             venue = match["Venue"]
 
+            left, right = [s.strip() for s in score.split(':')]
+            goals_scored, goals_conceded = int(left), int(right)
             if venue == "Away":
-                goals_scored, goals_conceded = int(score[4]), int(score[0])
-            else:
-                goals_scored, goals_conceded = int(score[0]), int(score[4])
+                goals_scored, goals_conceded = goals_conceded, goals_scored
 
             team_dict['Matches Played'] = i
             team_dict['Goals Scored'] += goals_scored
