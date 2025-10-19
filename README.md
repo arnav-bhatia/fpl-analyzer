@@ -12,4 +12,4 @@ The dashboard pulls real-time data directly from the official FPL API and presen
 
 **Advanced Analysis** - Comprehensive analysis of teams and players.
 
-*This project is a work-in-progress and aims to evolve into a comprehensive tool for FPL managers.*
+*This project is a work-in-progress.*
