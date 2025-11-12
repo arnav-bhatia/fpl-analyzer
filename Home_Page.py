@@ -1,20 +1,13 @@
 import logging
 from dataclasses import dataclass
 from typing import Any, Dict
-
 import datetime
 import pathlib
 import pytz
 import streamlit as st
-
 import utils
 
 st.set_page_config(page_title="FPL Analyzer", layout="wide", initial_sidebar_state="auto")
-
-# Logger
-logger = logging.getLogger("fpl_analyzer")
-logger.setLevel(logging.INFO)
-
 
 def load_css(file_path: pathlib.Path):
     """
@@ -25,7 +18,6 @@ def load_css(file_path: pathlib.Path):
 
     if not css_file.exists():
         st.warning(f"CSS file not found: {css_file}. Continuing without custom styles.")
-        logger.warning("CSS not found: %s", css_file)
         return
 
     try:
@@ -33,7 +25,6 @@ def load_css(file_path: pathlib.Path):
         st.markdown(f"<style>{css_text}</style>", unsafe_allow_html=True)
     except Exception:
         st.warning("Unable to load CSS. Continuing without custom styles.")
-        logger.exception("Error loading CSS file: %s", css_file)
 
 
 def normalize_manager_id(val: Any) -> str:
@@ -94,7 +85,6 @@ def fetch_fixtures_json():
 
 @st.cache_data(ttl=300, show_spinner=False)
 def fetch_manager_details_and_league(manager_id: str):
-    # returns (manager_league_df, league_coldefs, manager_details_dict)
     return utils.load_manager_details(manager_id=manager_id)
 
 
@@ -156,7 +146,6 @@ def assemble_all_data(manager_id: str) -> FPLData:
                 pd_col_defs=pd_col_defs,
             )
     except Exception as exc:
-        logger.exception("Failed to assemble FPL data for manager_id=%s", manager_id)
         st.error("Unable to load FPL data. Please check your network connection or try again.")
         raise RuntimeError("Failed to assemble FPL data") from exc
 
