@@ -1,6 +1,9 @@
+# 2_Season_Overview.py (top)
 import streamlit as st
 import pathlib
 import utils
+# import the dataclass type if you've moved it to models.py
+# from models import FPLData
 
 st.set_page_config(
     page_title='FPL Analyzer',
@@ -10,33 +13,48 @@ st.set_page_config(
 
 st.title('FPL Analyzer - Season Overview')
 
-data = st.session_state["fpl_data"]
-fresh = data["fetched_at"]
-player_json = data["player_json"]
-current_gw = data["current_gw"]
-pl_teams_dict = data["pl_teams_dict"]
-pl_teams_list = data["pl_teams_list"]
-position_dict = data["position_dict"]
-status_dict = data["status_dict"]
-player_df = data["player_df"]
-fixtures_df = data["fixtures_df"]
-fixtures_database = data["fixtures_database"]
-fixture_col_defs = data["fixture_col_defs"]
-fdr_database = data["fdr_database"]
-fdr_avg_coldefs = data["fdr_avg_coldefs"]
-team_fdr_rating_df = data["team_fdr_rating_df"]
-pl_table_df = data["pl_table_df"]
-pl_table_col_defs = data["pl_table_col_defs"]
-dreamteam_df = data["dreamteam_df"]
-dt_col_defs = data["dt_col_defs"]
-top_price_risers_df = data["top_price_risers_df"]
-pi_col_defs = data["pi_col_defs"]
-top_price_fallers_df = data["top_price_fallers_df"]
-pd_col_defs = data["pd_col_defs"]
+# guard for missing fpl_data
+if "fpl_data" not in st.session_state:
+    st.error("No fpl_data found in session_state — please go to Home and load data.")
+    st.stop()
 
-def load_css(file_path):
-    with open(file_path) as f:
-        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+data = st.session_state["fpl_data"]  # this is a FPLData instance
+
+# Use attribute access (dataclass fields)
+fresh = data.fetched_at
+player_json = data.player_json
+current_gw = data.current_gw
+pl_teams_dict = data.pl_teams_dict
+pl_teams_list = data.pl_teams_list
+position_dict = data.position_dict
+status_dict = data.status_dict
+player_df = data.player_df
+fixtures_df = data.fixtures_df
+fixtures_database = data.fixtures_database
+fixture_col_defs = data.fixture_col_defs
+fdr_database = data.fdr_database
+fdr_avg_coldefs = data.fdr_avg_coldefs
+team_fdr_rating_df = data.team_fdr_rating_df
+pl_table_df = data.pl_table_df
+pl_table_col_defs = data.pl_table_col_defs
+dreamteam_df = data.dreamteam_df
+dt_col_defs = data.dt_col_defs
+top_price_risers_df = data.top_price_risers_df
+pi_col_defs = data.pi_col_defs
+top_price_fallers_df = data.top_price_fallers_df
+pd_col_defs = data.pd_col_defs
+
+
+def load_css(file_path: pathlib.Path):
+    if not file_path.exists():
+        st.warning(f"CSS file not found: {file_path}")
+        return
+    try:
+        text = file_path.read_text(encoding="utf-8")
+        st.markdown(f"<style>{text}</style>", unsafe_allow_html=True)
+    except Exception as e:
+        st.warning("Unable to load CSS.")
+
 
 css_path = pathlib.Path("assets/styles.css")
 load_css(css_path)
@@ -153,7 +171,3 @@ with fixtures3:
         st.metric(f"Average FDR for the next 10 GWs", team_10gw_avg_fdr, delta=f"PL Rank: {team_10gw_rank}", delta_color=delta_colour_10, border=True)
 
 utils.render_divider()
-
-# team_id = "5252797"  # your ID
-# team_data = utils.get_my_team(team_id)
-# st.json(team_data) 
